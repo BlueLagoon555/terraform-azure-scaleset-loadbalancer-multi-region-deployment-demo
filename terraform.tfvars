@@ -1,0 +1,7 @@
+location = [ 
+    "westeurope",
+    "westus2",
+]
+
+
+
