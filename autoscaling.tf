@@ -1,14 +1,9 @@
-
-
-
-
 resource "azurerm_monitor_autoscale_setting" "demo-autoscaling" {
-    name = "${var.prefix}-autoscaling-${var.location[count.index]}"
-    resource_group_name = azurerm_resource_group.demo_rg.name
-    #location = var.location
-    count = var.region_count
-    location = var.location[count.index]
-    target_resource_id = azurerm_virtual_machine_scale_set.demo_scaleset[count.index].id
+    for_each = var.location
+    name = "${var.prefix}-autoscaling-${each.value}"
+    resource_group_name = var.resource_group
+    location = each.value
+    target_resource_id = azurerm_virtual_machine_scale_set.demo_scaleset[each.value].id
 
     profile {
         name = "default_profile"
@@ -23,7 +18,7 @@ resource "azurerm_monitor_autoscale_setting" "demo-autoscaling" {
 
             metric_trigger {
                 metric_name = "Pertcentage CPU"
-                metric_resource_id = azurerm_virtual_machine_scale_set.demo_scaleset[count.index].id
+                metric_resource_id = azurerm_virtual_machine_scale_set.demo_scaleset[each.value].id
                 time_grain = "PT1M"
                 statistic = "Average"
                 time_window = "PT5M"
@@ -44,7 +39,7 @@ resource "azurerm_monitor_autoscale_setting" "demo-autoscaling" {
 
             metric_trigger {
                 metric_name         = "Percentage CPU"
-                metric_resource_id  = azurerm_virtual_machine_scale_set.demo_scaleset[count.index].id
+                metric_resource_id  = azurerm_virtual_machine_scale_set.demo_scaleset[each.value].id
                 time_grain          = "PT1M"
                 statistic           = "Average"
                 time_window         = "PT5M"

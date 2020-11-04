@@ -1,30 +1,26 @@
 
 
-
 resource "azurerm_virtual_network" "demo_vnet" {
-    name = "${var.prefix}-vnet-${var.location[count.index]}"
-    count = var.region_count
-    #location = var.location
-    location = var.location[count.index]
-    resource_group_name = azurerm_resource_group.demo_rg.name
+    for_each = var.location
+    name = "${var.prefix}-vnet-${each.value}"
+    location = each.value
+    resource_group_name = var.resource_group
     address_space = ["10.0.0.0/16"]
 }
 
 resource "azurerm_subnet" "demo_subnet" {
-    name = "${var.prefix}-subnet-${var.location[count.index]}"
-    #location = var.location
-    count = var.region_count
-    virtual_network_name = azurerm_virtual_network.demo_vnet[count.index].name
-    resource_group_name = azurerm_resource_group.demo_rg.name
+    for_each = var.location
+    name = "${var.prefix}-subnet-${each.value}"
+    virtual_network_name = azurerm_virtual_network.demo_vnet[each.key].name
+    resource_group_name = var.resource_group
     address_prefixes = ["10.0.0.0/24"]
 }
 
 resource "azurerm_network_security_group" "demo_nsg" {
-    name = "${var.prefix}-nsg-${var.location[count.index]}"
-    #location = var.location
-    count = var.region_count
-    location = var.location[count.index]
-    resource_group_name = azurerm_resource_group.demo_rg.name
+    for_each = var.location
+    name = "${var.prefix}-nsg-${each.value}"
+    location = each.value
+    resource_group_name = var.resource_group
 
     security_rule {
         name = "HTTP"

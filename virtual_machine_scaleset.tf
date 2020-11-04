@@ -1,10 +1,10 @@
 
 resource "azurerm_virtual_machine_scale_set" "demo_scaleset" {
-    name = "${var.prefix}-scaleset-${var.location[count.index]}"
-    resource_group_name = azurerm_resource_group.demo_rg.name
-    #location = var.location
-    count = var.region_count
-    location = var.location[count.index]
+    for_each = var.location
+    name = "${var.prefix}-scaleset-${each.value}"
+    resource_group_name = var.resource_group
+    location = each.value
+    #availability_set_id = azurerm_availability_set.avset.id
 
     #automatic rolling  upgrade
 
@@ -20,7 +20,7 @@ resource "azurerm_virtual_machine_scale_set" "demo_scaleset" {
 
     # required when using rolling upgrade policy
 
-    health_probe_id = azurerm_lb_probe.lb_probe[count.index].id
+    health_probe_id = azurerm_lb_probe.lb_probe[each.value].id
 
     zones = var.zones
 
@@ -71,15 +71,15 @@ resource "azurerm_virtual_machine_scale_set" "demo_scaleset" {
     network_profile {
         name = "demo_network_profile"
         primary = true
-        network_security_group_id = azurerm_network_security_group.demo_nsg[count.index].id
+        network_security_group_id = azurerm_network_security_group.demo_nsg[each.value].id
 
         ip_configuration {
 
             name = "IPConfiguration"
             primary = true
-            subnet_id = azurerm_subnet.demo_subnet[count.index].id
-            load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.lb_be_pool[count.index].id]
-            load_balancer_inbound_nat_rules_ids = [azurerm_lb_nat_pool.lb_nat_pool[count.index].id]
+            subnet_id = azurerm_subnet.demo_subnet[each.value].id
+            load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.lb_be_pool[each.value].id]
+            load_balancer_inbound_nat_rules_ids = [azurerm_lb_nat_pool.lb_nat_pool[each.value].id]
 
         }
     }
